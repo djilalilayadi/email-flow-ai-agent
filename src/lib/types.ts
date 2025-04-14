@@ -23,3 +23,10 @@ export interface EmailType {
   labels?: string[];
   attachments?: Attachment[];
 }
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  picture: string;
+}

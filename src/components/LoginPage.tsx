@@ -2,10 +2,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { loginWithGoogle, storeAuthToken } from "@/lib/authUtils";
+import { loginWithGoogle } from "@/lib/authUtils";
 
 interface LoginPageProps {
   setIsAuthenticated: (value: boolean) => void;
@@ -19,19 +17,11 @@ const LoginPage = ({ setIsAuthenticated }: LoginPageProps) => {
     setIsLoading(true);
     
     try {
-      // In a real app, we'd authenticate with Google OAuth
-      // For this demo, we'll simulate a successful login
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // This will redirect to Google OAuth
+      await loginWithGoogle();
       
-      const mockToken = "mock-google-token-" + Math.random().toString(36).substring(2);
-      storeAuthToken(mockToken);
-      
-      toast({
-        title: "Login successful!",
-        description: "You've been authenticated with Google",
-      });
-      
-      setIsAuthenticated(true);
+      // Note: The page will redirect to Google, so the code below will not execute
+      // until the user returns from Google OAuth (handled in Index.tsx)
     } catch (error) {
       console.error("Login error:", error);
       toast({
@@ -39,7 +29,6 @@ const LoginPage = ({ setIsAuthenticated }: LoginPageProps) => {
         description: "There was an error logging in with Google",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -80,8 +69,8 @@ const LoginPage = ({ setIsAuthenticated }: LoginPageProps) => {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 0C5.372 0 0 5.372 0 12C0 18.628 5.372 24 12 24C18.628 24 24 18.628 24 12C24 5.372 18.628 0 12 0ZM19.44 11.31H12.91V9.2C12.91 8.3 13.65 8.2 14.08 8.2H17.08V5.32L13.03 5.29C8.84 5.29 8.16 8.07 8.16 9.02V11.31H5.93V14.35H8.16V23.8H12.91V14.35H19.44V11.31Z" fill="white"/>
+                <svg width="20" height="20" viewBox="0 0 488 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C315.5 98.6 282.7 81.2 248 81.2c-101.7 0-184.7 82.8-184.7 184.8 0 102 83 184.8 184.7 184.8 99.7 0 173.3-73.2 180.6-166.8H248V203h238.1c2.3 12.7 3.9 24.9 3.9 41.8z" fill="white"/>
                 </svg>
               )}
               <span>{isLoading ? "Connecting..." : "Connect with Google"}</span>
@@ -95,8 +84,8 @@ const LoginPage = ({ setIsAuthenticated }: LoginPageProps) => {
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <div className="text-sm text-muted-foreground text-center">
-              <p>Demo version - No actual Gmail access required</p>
-              <p className="text-xs mt-1">Click "Connect with Google" to see the demo</p>
+              <p>Connect to your Gmail account</p>
+              <p className="text-xs mt-1">We request permission to read and organize your emails</p>
             </div>
           </CardFooter>
         </Card>

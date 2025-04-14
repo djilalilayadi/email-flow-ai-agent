@@ -3,28 +3,64 @@ import { useEffect, useState } from "react";
 import Dashboard from "@/components/Dashboard";
 import LoginPage from "@/components/LoginPage";
 import { useToast } from "@/components/ui/use-toast";
-import { getStoredAuthToken } from "@/lib/authUtils";
+import { getStoredAuthToken, handleGoogleCallback, fetchUserProfile } from "@/lib/authUtils";
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState<any>(null);
   const { toast } = useToast();
   
   useEffect(() => {
-    // Check if user is authenticated
+    // Check if user is coming back from OAuth redirect
+    const checkOAuthCallback = async () => {
+      if (window.location.hash.includes("access_token")) {
+        const token = handleGoogleCallback();
+        if (token) {
+          setIsAuthenticated(true);
+          toast({
+            title: "Login successful!",
+            description: "You've been authenticated with Google",
+          });
+          
+          try {
+            const profile = await fetchUserProfile();
+            setUserProfile(profile);
+          } catch (error) {
+            console.error("Error fetching profile:", error);
+          }
+        }
+      }
+    };
+    
+    // Check if user is already authenticated
     const checkAuth = async () => {
       const token = getStoredAuthToken();
       
       if (token) {
-        // We would validate the token here in a real app
-        setIsAuthenticated(true);
+        try {
+          // Validate the token by fetching user profile
+          const profile = await fetchUserProfile();
+          setUserProfile(profile);
+          setIsAuthenticated(true);
+        } catch (error) {
+          console.error("Auth token invalid:", error);
+          // If token is invalid, remove it
+          localStorage.removeItem('email-organizer-auth-token');
+        }
       }
       
       setIsLoading(false);
     };
     
-    checkAuth();
-  }, []);
+    checkOAuthCallback().then(() => {
+      if (!isAuthenticated) {
+        checkAuth();
+      } else {
+        setIsLoading(false);
+      }
+    });
+  }, [toast]);
   
   if (isLoading) {
     return (
@@ -37,7 +73,11 @@ const Index = () => {
     );
   }
   
-  return isAuthenticated ? <Dashboard /> : <LoginPage setIsAuthenticated={setIsAuthenticated} />;
+  return isAuthenticated ? (
+    <Dashboard userProfile={userProfile} />
+  ) : (
+    <LoginPage setIsAuthenticated={setIsAuthenticated} />
+  );
 };
 
 export default Index;
