@@ -1,4 +1,3 @@
-
 const AUTH_TOKEN_KEY = 'email-organizer-auth-token';
 
 export const storeAuthToken = (token: string): void => {
@@ -14,7 +13,7 @@ export const removeAuthToken = (): void => {
 };
 
 // Google OAuth client ID from Google Developer Console
-const GOOGLE_CLIENT_ID = "596429290799-5acm55t9nm36glfskcsiclkt1arqqtl0.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID = "596429290799-sdas9qvelc3pgni7tm96rv9t0jr36r87.apps.googleusercontent.com";
 const GOOGLE_REDIRECT_URI = window.location.origin;
 
 // Scopes needed for Gmail access
