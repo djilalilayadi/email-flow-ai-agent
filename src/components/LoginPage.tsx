@@ -54,7 +54,7 @@ const LoginPage = ({ setIsAuthenticated }: LoginPageProps) => {
           <CardHeader>
             <CardTitle>Sign in to your account</CardTitle>
             <CardDescription>
-              Connect your Google account to get started
+              Connect your Gmail account to get started
             </CardDescription>
           </CardHeader>
           <CardContent>

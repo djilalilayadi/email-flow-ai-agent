@@ -13,9 +13,8 @@ export const removeAuthToken = (): void => {
   localStorage.removeItem(AUTH_TOKEN_KEY);
 };
 
-// Google OAuth client ID - this should be obtained from the Google Developer Console
-// In a production app, this would ideally be stored in an environment variable
-const GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID";
+// Google OAuth client ID from Google Developer Console
+const GOOGLE_CLIENT_ID = "596429290799-5acm55t9nm36glfskcsiclkt1arqqtl0.apps.googleusercontent.com";
 const GOOGLE_REDIRECT_URI = window.location.origin;
 
 // Scopes needed for Gmail access
