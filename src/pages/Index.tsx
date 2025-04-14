@@ -82,6 +82,8 @@ const Index = () => {
       setIsLoading(false);
     };
     
+    // We still check for redirect-based auth (for backward compatibility)
+    // but primary auth will now happen through popup
     checkOAuthCallback().then(() => {
       if (!isAuthenticated) {
         checkAuth();
@@ -90,6 +92,19 @@ const Index = () => {
       }
     });
   }, [toast]);
+  
+  // When user authenticates via popup in LoginPage
+  const handleAuthentication = async (isAuth: boolean) => {
+    if (isAuth) {
+      setIsAuthenticated(true);
+      try {
+        const profile = await fetchUserProfile();
+        setUserProfile(profile);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+      }
+    }
+  };
   
   if (isLoading) {
     return (
@@ -106,7 +121,7 @@ const Index = () => {
     <Dashboard userProfile={userProfile} />
   ) : (
     <LoginPage 
-      setIsAuthenticated={setIsAuthenticated} 
+      setIsAuthenticated={handleAuthentication} 
       authError={authError}
     />
   );

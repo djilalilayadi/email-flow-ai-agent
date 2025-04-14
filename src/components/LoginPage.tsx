@@ -19,11 +19,22 @@ const LoginPage = ({ setIsAuthenticated, authError }: LoginPageProps) => {
     setIsLoading(true);
     
     try {
-      // This will redirect to Google OAuth
-      await loginWithGoogle();
+      // This will open a popup for Google OAuth
+      const token = await loginWithGoogle();
       
-      // Note: The page will redirect to Google, so the code below will not execute
-      // until the user returns from Google OAuth (handled in Index.tsx)
+      if (token) {
+        setIsAuthenticated(true);
+        toast({
+          title: "Login successful!",
+          description: "You've been authenticated with Google",
+        });
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Authentication was cancelled or failed",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Login error:", error);
       toast({
@@ -31,6 +42,7 @@ const LoginPage = ({ setIsAuthenticated, authError }: LoginPageProps) => {
         description: "There was an error logging in with Google",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
