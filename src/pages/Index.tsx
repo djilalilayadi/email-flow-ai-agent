@@ -4,17 +4,20 @@ import Dashboard from "@/components/Dashboard";
 import LoginPage from "@/components/LoginPage";
 import { useToast } from "@/components/ui/use-toast";
 import { getStoredAuthToken, handleGoogleCallback, fetchUserProfile } from "@/lib/authUtils";
+import { UserProfile } from "@/lib/types";
 
 const Index = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
   
   useEffect(() => {
     // Check if user is coming back from OAuth redirect
     const checkOAuthCallback = async () => {
       if (window.location.hash.includes("access_token")) {
+        console.log("OAuth callback detected");
         const token = handleGoogleCallback();
         if (token) {
           setIsAuthenticated(true);
@@ -28,18 +31,44 @@ const Index = () => {
             setUserProfile(profile);
           } catch (error) {
             console.error("Error fetching profile:", error);
+            setAuthError("Failed to fetch user profile");
+            toast({
+              title: "Error",
+              description: "Failed to fetch user profile",
+              variant: "destructive",
+            });
           }
+        } else {
+          console.error("No token found in callback");
+          setAuthError("No authentication token received");
+          toast({
+            title: "Login failed",
+            description: "No authentication token received from Google",
+            variant: "destructive",
+          });
         }
+      } else if (window.location.hash.includes("error")) {
+        console.error("OAuth error in URL hash:", window.location.hash);
+        const errorParams = new URLSearchParams(window.location.hash.substring(1));
+        const errorMessage = errorParams.get("error_description") || "Authentication error";
+        setAuthError(errorMessage);
+        toast({
+          title: "Login failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
       }
     };
     
     // Check if user is already authenticated
     const checkAuth = async () => {
       const token = getStoredAuthToken();
+      console.log("Checking authentication, token exists:", !!token);
       
       if (token) {
         try {
           // Validate the token by fetching user profile
+          console.log("Validating token by fetching user profile");
           const profile = await fetchUserProfile();
           setUserProfile(profile);
           setIsAuthenticated(true);
@@ -76,7 +105,10 @@ const Index = () => {
   return isAuthenticated ? (
     <Dashboard userProfile={userProfile} />
   ) : (
-    <LoginPage setIsAuthenticated={setIsAuthenticated} />
+    <LoginPage 
+      setIsAuthenticated={setIsAuthenticated} 
+      authError={authError}
+    />
   );
 };
 

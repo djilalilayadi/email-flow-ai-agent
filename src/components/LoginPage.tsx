@@ -4,12 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { loginWithGoogle } from "@/lib/authUtils";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface LoginPageProps {
   setIsAuthenticated: (value: boolean) => void;
+  authError?: string | null;
 }
 
-const LoginPage = ({ setIsAuthenticated }: LoginPageProps) => {
+const LoginPage = ({ setIsAuthenticated, authError }: LoginPageProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   
@@ -49,6 +51,13 @@ const LoginPage = ({ setIsAuthenticated }: LoginPageProps) => {
             AI-powered assistant to manage your inbox, save time, and never miss important emails.
           </p>
         </div>
+        
+        {authError && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertTitle>Authentication Error</AlertTitle>
+            <AlertDescription>{authError}</AlertDescription>
+          </Alert>
+        )}
         
         <Card>
           <CardHeader>

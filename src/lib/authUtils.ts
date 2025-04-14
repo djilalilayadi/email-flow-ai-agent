@@ -1,3 +1,4 @@
+
 const AUTH_TOKEN_KEY = 'email-organizer-auth-token';
 
 export const storeAuthToken = (token: string): void => {
@@ -32,8 +33,11 @@ export const initiateGoogleLogin = (): void => {
   authUrl.searchParams.append("redirect_uri", GOOGLE_REDIRECT_URI);
   authUrl.searchParams.append("response_type", "token");
   authUrl.searchParams.append("scope", GMAIL_SCOPES);
-  authUrl.searchParams.append("prompt", "select_account");
-  authUrl.searchParams.append("access_type", "offline");
+  authUrl.searchParams.append("prompt", "consent");
+  authUrl.searchParams.append("access_type", "online"); // Changed from offline to online for implicit flow
+  
+  // Add some console logging
+  console.log("Initiating Google login with URL:", authUrl.toString());
   
   // Redirect to Google's OAuth page
   window.location.href = authUrl.toString();
@@ -44,6 +48,9 @@ export const handleGoogleCallback = (): string | null => {
   const hash = window.location.hash.substring(1);
   const params = new URLSearchParams(hash);
   const accessToken = params.get("access_token");
+  
+  console.log("Auth callback received, hash:", hash);
+  console.log("Access token:", accessToken ? "Token received" : "No token found");
   
   if (accessToken) {
     storeAuthToken(accessToken);
@@ -71,6 +78,8 @@ export const fetchUserProfile = async (): Promise<any> => {
     throw new Error("Not authenticated");
   }
   
+  console.log("Fetching user profile with token:", token.substring(0, 5) + "...");
+  
   const response = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
     headers: {
       Authorization: `Bearer ${token}`
@@ -78,8 +87,11 @@ export const fetchUserProfile = async (): Promise<any> => {
   });
   
   if (!response.ok) {
+    console.error("Profile fetch failed:", response.status, response.statusText);
     throw new Error("Failed to fetch user profile");
   }
   
-  return await response.json();
+  const profile = await response.json();
+  console.log("Profile fetched successfully:", profile.email);
+  return profile;
 };
